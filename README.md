@@ -20,7 +20,7 @@ npm run build    # production output in dist/
 npm run preview  # preview the production build locally
 ```
 
-For a generic local static server, build first and serve `dist/`, for example with `npx serve dist`. Share and clipboard APIs generally require HTTPS or localhost; PNG download and editing do not.
+For a generic local static server, build first and serve `dist/`, for example with `npx serve dist`.
 
 ## GitHub and Vercel
 
@@ -43,9 +43,7 @@ Import the repository and use `npm run build` as the build command and `dist` as
 
 - `html-to-image` is installed from npm; no runtime CDN script is used.
 - Google Fonts are optional. If unavailable, Receiptly falls back to local monospace and system fonts.
-- File sharing depends on the Web Share API and file-sharing support. Unsupported browsers download the PNG instead.
-- Image copying requires `ClipboardItem`, clipboard write permission, and a secure context. Download remains available as the fallback.
-- Older browsers receive best-effort editing and preview. Modern export, sharing, clipboard, `clip-path`, and animation features may not be available.
+- Older browsers receive best-effort editing and preview. Modern export, `clip-path`, and animation features may not be available.
 - Local form state is stored with guarded `localStorage` access. Generated images are never persisted.
 
 ## Manual testing checklist
@@ -59,7 +57,6 @@ Import the repository and use `npm run build` as the build command and `dist` as
 - Toggle the barcode and order number; use Shuffle and Print again; enable reduced motion.
 - Reload to verify persistence, then place invalid data under the `receiptly-state` localStorage key to verify recovery.
 - Download a PNG and inspect its colors, edges, barcode, long content, and 3× resolution.
-- Test Share and Copy image on supported HTTPS browsers and verify the explanatory fallbacks elsewhere.
 - Check the browser console for errors during normal use.
 
 ## Privacy

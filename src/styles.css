@@ -118,7 +118,6 @@ legend, .field > span { display: block; margin-bottom: 8px; font-size: 0.86rem; 
 }
 
 @media (min-width: 430px) {
-  .output-actions { grid-template-columns: 1.25fr 1fr 1fr; }
   .segmented { grid-template-columns: repeat(4, 1fr); }
   .theme-grid { grid-template-columns: repeat(3, 1fr); }
   .preview-panel, .editor-panel { padding-inline: 28px; }

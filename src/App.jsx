@@ -79,7 +79,6 @@ function App() {
   const [selectedPreset, setSelectedPreset] = useState(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('Ready. Your receipt updates as you type.');
-  const [retryShare, setRetryShare] = useState(false);
   const receiptRef = useRef(null);
   const imageCache = useRef(null);
 
@@ -99,7 +98,6 @@ function App() {
       // Storage can be unavailable in privacy modes; the editor remains fully usable.
     }
     imageCache.current = null;
-    setRetryShare(false);
   }, [state]);
 
   const update = useCallback((patch) => setState((current) => ({ ...current, ...patch })), []);
@@ -132,7 +130,6 @@ function App() {
     setOrderNumber(randomOrderNumber());
     setBarcode(randomBarcode());
     imageCache.current = null;
-    setRetryShare(false);
     setStatus('Order number and barcode shuffled.');
   };
 
@@ -192,55 +189,6 @@ function App() {
   const download = () => runOutput(async (blob) => {
     downloadBlob(blob);
     setStatus('PNG downloaded at 3× resolution.');
-  });
-
-  const share = () => runOutput(async (blob) => {
-    const file = new File([blob], fileNameFor(state.type), { type: 'image/png' });
-    if (!navigator.share || !navigator.canShare?.({ files: [file] })) {
-      downloadBlob(blob);
-      setStatus('File sharing is unavailable here, so the PNG was downloaded instead.');
-      return;
-    }
-    try {
-      await navigator.share({ files: [file], title: 'My Receiptly receipt' });
-      setRetryShare(false);
-      setStatus('Receipt shared.');
-    } catch (error) {
-      if (error?.name === 'AbortError') {
-        setStatus('Share cancelled.');
-      } else if (error?.name === 'NotAllowedError') {
-        setRetryShare(true);
-        setStatus('The share window expired while the image was prepared. Use “Retry share” now, or download it.');
-      } else {
-        setStatus('Sharing was not completed. You can download the PNG instead.');
-      }
-    }
-  });
-
-  const shareCached = async () => {
-    const blob = imageCache.current;
-    if (!blob) return share();
-    const file = new File([blob], fileNameFor(state.type), { type: 'image/png' });
-    try {
-      await navigator.share({ files: [file], title: 'My Receiptly receipt' });
-      setRetryShare(false);
-      setStatus('Receipt shared.');
-    } catch (error) {
-      if (error?.name !== 'AbortError') setStatus('Sharing was not completed. You can download the PNG instead.');
-    }
-  };
-
-  const copyImage = () => runOutput(async (blob) => {
-    if (!window.isSecureContext || !window.ClipboardItem || !navigator.clipboard?.write) {
-      setStatus('Image copying is unavailable in this browser or context. Download the PNG instead.');
-      return;
-    }
-    try {
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      setStatus('Receipt image copied to your clipboard.');
-    } catch {
-      setStatus('The browser did not allow image copying. Download the PNG instead.');
-    }
   });
 
   useEffect(() => {
@@ -319,8 +267,6 @@ function App() {
 
           <div className="output-actions" aria-label="Image output">
             <button className="button button--primary" type="button" onClick={download} disabled={busy}>Download PNG</button>
-            <button className="button" type="button" onClick={retryShare ? shareCached : share} disabled={busy}>{retryShare ? 'Retry share' : 'Share'}</button>
-            <button className="button" type="button" onClick={copyImage} disabled={busy}>Copy image</button>
           </div>
           <p className="status" role="status" aria-live="polite">{status}</p>
         </section>
